@@ -1,0 +1,8 @@
+{
+    "name": "my-astro-app",
+    // Set this to today's date
+    "compatibility_date": "2026-09-15",
+    "assets": {
+        "directory": "./dist"
+    }
+}
