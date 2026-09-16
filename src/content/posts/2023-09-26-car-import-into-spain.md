@@ -14,7 +14,7 @@ If you're reading this article, you're probably interested in importing a car. T
 
 This process mostly applies to European cars, and it's pretty much the same for every European car.
 
-The first and most important thing you need is an NIE. If you don't have one, don't worry, we've got you covered! Check out this article about getting one: https://jvar.nl/2023/obtaining-your-nie/. You'll also need an empadronamiento (town hall registration).
+The first and most important thing you need is an NIE. If you don't have one, don't worry, we've got you covered! Check out this article about getting one: /blog/obtaining-your-nie/. You'll also need an empadronamiento (town hall registration).
 
 The first thing you'll need for the country of origin is the proof of export. You can get this from the government body holding all the car registrations. In the Netherlands, for example, this is the RDW. When the export is completed, they will remove your license plate. In this case, you'll also need a temporary license plate to drive to Spain. You'll require insurance on this temporary export license plate. Alternatively, you can drive to Spain on your regular plates and receive the proof of export at a later time if you don't have a more permanent place to stay yet.
 

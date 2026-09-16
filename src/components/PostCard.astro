@@ -24,10 +24,8 @@ const { post, variant = 'grid' } = Astro.props;
 const heroImage = getPostHeroImage(post.data.slug);
 const minutes = estimateReadingMinutes(post.body ?? '');
 const topic = getPrimaryTopic(post);
+const isoDate = post.data.date.toISOString();
 const shortDate = formatDate(post.data.date, 'short');
-const dateAndTime = `${shortDate} · ${minutes} min`;
-/** "Places · 28 Jun · 2 min" */
-const meta = [topic, shortDate, `${minutes} min`].filter(Boolean).join(' · ');
 const excerpt = post.data.teaser;
 const href = postPath(post);
 
@@ -45,7 +43,9 @@ const thumbHeight = variant === 'featured' ? 475 : variant === 'compact' ? 480 :
         )}
         <div class="chips">
           {topic && <span class="badge">{topic}</span>}
-          <span class="badge dark">{dateAndTime}</span>
+          <span class="badge dark">
+            <time datetime={isoDate}>{shortDate}</time>{' · '}{minutes} min
+          </span>
         </div>
       </div>
       <h3>{post.data.title}</h3>
@@ -65,7 +65,9 @@ const thumbHeight = variant === 'featured' ? 475 : variant === 'compact' ? 480 :
         )}
       </div>
       <div class="body">
-        <div class="meta">{meta}</div>
+        <div class="meta">
+          {topic && <>{topic}{' · '}</>}<time datetime={isoDate}>{shortDate}</time>{' · '}{minutes} min
+        </div>
         <h4>{post.data.title}</h4>
         {excerpt && <p class="excerpt">{excerpt}</p>}
       </div>
@@ -83,7 +85,9 @@ const thumbHeight = variant === 'featured' ? 475 : variant === 'compact' ? 480 :
           <div class="placeholder fill" />
         )}
       </div>
-      <div class="meta">{meta}</div>
+      <div class="meta">
+        {topic && <>{topic}{' · '}</>}<time datetime={isoDate}>{shortDate}</time>{' · '}{minutes} min
+      </div>
       <h3>{post.data.title}</h3>
       {excerpt && <p class="excerpt">{excerpt}</p>}
     </a>

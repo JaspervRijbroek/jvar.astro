@@ -7,6 +7,7 @@ import SectionHeading from '../../components/SectionHeading.astro';
 import PostCard from '../../components/PostCard.astro';
 import AuthorBio from '../../components/AuthorBio.astro';
 import { getPostHeroImage } from '../../lib/images';
+import { ogImageUrl, personRef, publisher } from '../../lib/seo';
 import {
   getAllPostsSorted,
   getRelatedPosts,
@@ -15,8 +16,7 @@ import {
   estimateReadingMinutes,
   postPath,
   topicPath,
-  SITE_URL,
-  SITE_TITLE,
+  absoluteUrl,
   AUTHOR_NAME,
 } from '../../lib/content';
 
@@ -44,42 +44,42 @@ const trail = [
 
 const related = await getRelatedPosts(post);
 const description = post.data.seoDescription ?? post.data.teaser ?? '';
-const canonicalUrl = SITE_URL + postPath(post);
+const canonicalPath = postPath(post);
+const canonicalUrl = absoluteUrl(canonicalPath);
+const published = post.data.date;
+const modified = post.data.updated ?? post.data.date;
 
 const blogSchema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   '@id': `${canonicalUrl}#BlogPosting`,
+  mainEntityOfPage: canonicalUrl,
   headline: post.data.title,
-  datePublished: post.data.date.toISOString(),
-  dateModified: (post.data.updated ?? post.data.date).toISOString(),
+  datePublished: published.toISOString(),
+  dateModified: modified.toISOString(),
+  articleBody: post.body,
   description: post.data.teaser,
   url: canonicalUrl,
   inLanguage: 'en',
   isFamilyFriendly: true,
   copyrightHolder: AUTHOR_NAME,
-  author: {
-    '@type': 'Person',
-    '@id': `${SITE_URL}/about/#Person`,
-    name: AUTHOR_NAME,
-    url: `${SITE_URL}/about/`,
-  },
-  publisher: { '@type': 'Organization', '@id': SITE_URL, name: SITE_TITLE },
-  ...(related.length > 0 && { relatedLink: related.map((p) => SITE_URL + postPath(p)) }),
+  author: personRef(),
+  publisher: publisher(),
+  ...(heroImage && { image: [await ogImageUrl(heroImage)] }),
+  ...(related.length > 0 && { relatedLink: related.map((p) => absoluteUrl(postPath(p))) }),
 };
 ---
-<Layout title={post.data.title} description={description}>
-  <Fragment slot="head">
-    <link rel="canonical" href={canonicalUrl} />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content={post.data.title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:site_name" content={SITE_TITLE} />
-    <meta property="article:published_time" content={post.data.date.toISOString()} />
-    <script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
-  </Fragment>
-
+<Layout
+  title={post.data.title}
+  description={description}
+  canonical={canonicalPath}
+  ogType="article"
+  image={heroImage}
+  imageAlt={post.data.title}
+  publishedTime={published}
+  modifiedTime={modified}
+  schema={[blogSchema]}
+>
   <Hero slot="hero" variant="article" title={post.data.title} image={heroImage} imageAlt={post.data.title}>
     <Breadcrumbs slot="breadcrumbs" trail={trail} />
     <Fragment slot="chips">

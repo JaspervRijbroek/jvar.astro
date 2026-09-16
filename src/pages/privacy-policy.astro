@@ -1,22 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
-import { SITE_URL } from '../lib/content';
 ---
 <Layout
   title="Privacy Policy"
-  description="Privacy policy for jvar.nl — how Google Analytics data is collected and used, your GDPR rights, and third-party services."
+  description="Privacy policy for jvar.eu — how Google Analytics data is collected and used, your GDPR rights, and third-party services."
+  canonical="/privacy-policy/"
   noindex
 >
-  <Fragment slot="head">
-    <link rel="canonical" href={`${SITE_URL}/privacy-policy/`} />
-  </Fragment>
 
   <Hero
     slot="hero"
     variant="page"
     title="Privacy Policy"
-    lede="This policy explains what data is collected when you visit jvar.nl and how it is used."
+    lede="This policy explains what data is collected when you visit jvar.eu and how it is used."
   >
     <span slot="chips" class="badge teal">Legal</span>
   </Hero>
@@ -26,7 +23,7 @@ import { SITE_URL } from '../lib/content';
       <section class="block">
         <h2>Who we are</h2>
         <p>
-          This website is operated by Jasper van Rijbroek (jvar.nl). If you have any questions about this policy,
+          This website is operated by Jasper van Rijbroek (jvar.eu). If you have any questions about this policy,
           you can contact me at <a href="mailto:hello@jvar.nl">hello@jvar.nl</a>.
         </p>
       </section>
@@ -55,7 +52,7 @@ import { SITE_URL } from '../lib/content';
         <h2>Cookies</h2>
         <p>
           Google Analytics sets cookies to distinguish unique visitors and sessions. These are first-party cookies
-          stored under the <code>jvar.nl</code> domain. No third-party advertising cookies are used.
+          stored under the <code>jvar.eu</code> domain. No third-party advertising cookies are used.
         </p>
       </section>
 

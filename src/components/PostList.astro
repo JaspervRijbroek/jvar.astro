@@ -6,7 +6,9 @@ import Breadcrumbs, { type Crumb } from './Breadcrumbs.astro';
 import TopicFilters from './TopicFilters.astro';
 import PostCard from './PostCard.astro';
 import Pagination from './Pagination.astro';
-import { type Post, POSTS_PER_PAGE, paginate, pageCount } from '../lib/content';
+import { getPostHeroImage } from '../lib/images';
+import { blogListSchema } from '../lib/seo';
+import { type Post, paginate, pageCount, absoluteUrl } from '../lib/content';
 
 /**
  * Paginated listing screen: a topic's posts, or the whole archive when no
@@ -39,14 +41,28 @@ const trail: Crumb[] = [
     : { label: 'All posts', href: `${base}page/${currentPage}/` },
 ];
 
-const pageTitle = currentPage > 1 && !topicSlug ? `All posts — page ${currentPage}` : title;
+const pageTitle = currentPage > 1 ? `${title} — page ${currentPage}` : title;
+const pageUrl = (page: number) => absoluteUrl(page === 1 ? base : `${base}page/${page}/`);
+
+/* Topic landings describe themselves as a Blog; the archive's page 1 is the
+ * home page, which carries its own schema. */
+const schema =
+  topicSlug && currentPage === 1
+    ? [await blogListSchema(pagePosts, { name: title, url: absoluteUrl(base), description: description ?? '' })]
+    : [];
 ---
-<Layout title={pageTitle} description={description} noindex={currentPage > 1}>
+<Layout
+  title={pageTitle}
+  description={description}
+  canonical={base}
+  noindex={currentPage > 1}
+  image={image ?? (pagePosts[0] && getPostHeroImage(pagePosts[0].data.slug))}
+  imageAlt={title}
+  schema={schema}
+>
   <Fragment slot="head">
-    {currentPage > 1 && (
-      <link rel="prev" href={currentPage === 2 ? base : `${base}page/${currentPage - 1}/`} />
-    )}
-    {currentPage < numPages && <link rel="next" href={`${base}page/${currentPage + 1}/`} />}
+    {currentPage > 1 && <link rel="prev" href={pageUrl(currentPage - 1)} />}
+    {currentPage < numPages && <link rel="next" href={pageUrl(currentPage + 1)} />}
   </Fragment>
 
   <Hero slot="hero" variant="page" title={title} lede={lede} image={image} imageAlt={title}>

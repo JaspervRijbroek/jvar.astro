@@ -3,9 +3,17 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 export type Post = CollectionEntry<'posts'>;
 export type Topic = CollectionEntry<'topics'>;
 
-export const SITE_URL = 'https://jvar.nl';
+/** Origin without trailing slash, from `site` in astro.config.mjs. */
+export const SITE_URL = import.meta.env.SITE.replace(/\/$/, '');
 export const SITE_TITLE = 'Jvar';
+export const SITE_DESCRIPTION =
+  'A blog by Jasper van Rijbroek — a Dutch family documenting life in Valencia, Spain. Practical guides on NIE, residency, taxes, housing, and the best places to visit.';
+export const SITE_LOCALE = 'en_US';
 export const AUTHOR_NAME = 'Jasper van Rijbroek';
+
+export function absoluteUrl(path: string) {
+  return SITE_URL + path;
+}
 
 /** Posts per listing page, matching the original site. */
 export const POSTS_PER_PAGE = 6;

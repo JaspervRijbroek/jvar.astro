@@ -13,6 +13,7 @@
     "convert:posts": "node scripts/convert-posts.mjs"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "astro": "^7.3.2",
     "astro-lqip": "^1.8.4"
   },

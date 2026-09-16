@@ -46,13 +46,11 @@ const personSchema = {
 };
 ---
 <Layout
-  title="About"
+  title="About Jasper van Rijbroek"
   description="Learn more about the story behind our move to Spain in 2023, the challenges we encountered, and the lessons we learned."
+  canonical="/about/"
+  schema={[personSchema]}
 >
-  <Fragment slot="head">
-    <link rel="canonical" href={`${SITE_URL}/about/`} />
-    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-  </Fragment>
 
   <section class="wrap section top">
     <div class="intro">
