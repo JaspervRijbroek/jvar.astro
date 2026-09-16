@@ -9,10 +9,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "convert:posts": "node scripts/convert-posts.mjs"
   },
   "dependencies": {
-    "astro": "^7.3.2"
+    "astro": "^7.3.2",
+    "astro-lqip": "^1.8.4"
   },
   "allowScripts": {
     "esbuild": true

@@ -1,0 +1,236 @@
+---
+import { Image } from 'astro-lqip/components';
+import { getPostHeroImage } from '../lib/images';
+import {
+  type Post,
+  formatDate,
+  estimateReadingMinutes,
+  getPrimaryTopic,
+  postPath,
+} from '../lib/content';
+
+/**
+ * `featured` — the large lead card on the home page, chips over the image.
+ * `compact`  — the stacked rows beside it, square thumb on the left.
+ * `grid`     — the default card used in listings.
+ */
+interface Props {
+  post: Post;
+  variant?: 'featured' | 'compact' | 'grid';
+}
+
+const { post, variant = 'grid' } = Astro.props;
+
+const heroImage = getPostHeroImage(post.data.slug);
+const minutes = estimateReadingMinutes(post.body ?? '');
+const topic = getPrimaryTopic(post);
+const shortDate = formatDate(post.data.date, 'short');
+const dateAndTime = `${shortDate} · ${minutes} min`;
+/** "Places · 28 Jun · 2 min" */
+const meta = [topic, shortDate, `${minutes} min`].filter(Boolean).join(' · ');
+const excerpt = post.data.teaser;
+const href = postPath(post);
+
+const thumbWidth = variant === 'featured' ? 760 : 480;
+const thumbHeight = variant === 'featured' ? 475 : variant === 'compact' ? 480 : 360;
+---
+{variant === 'featured' && (
+  <article class="card featured transition-motion">
+    <a href={href}>
+      <div class="thumb">
+        {heroImage ? (
+          <Image src={heroImage} alt={post.data.title} width={thumbWidth} height={thumbHeight} />
+        ) : (
+          <div class="placeholder fill" />
+        )}
+        <div class="chips">
+          {topic && <span class="badge">{topic}</span>}
+          <span class="badge dark">{dateAndTime}</span>
+        </div>
+      </div>
+      <h3>{post.data.title}</h3>
+      {excerpt && <p class="excerpt">{excerpt}</p>}
+    </a>
+  </article>
+)}
+
+{variant === 'compact' && (
+  <article class="card compact transition-motion">
+    <a href={href}>
+      <div class="thumb">
+        {heroImage ? (
+          <Image src={heroImage} alt={post.data.title} width={thumbWidth} height={thumbHeight} />
+        ) : (
+          <div class="placeholder fill" />
+        )}
+      </div>
+      <div class="body">
+        <div class="meta">{meta}</div>
+        <h4>{post.data.title}</h4>
+        {excerpt && <p class="excerpt">{excerpt}</p>}
+      </div>
+    </a>
+  </article>
+)}
+
+{variant === 'grid' && (
+  <article class="card grid transition-motion">
+    <a href={href}>
+      <div class="thumb">
+        {heroImage ? (
+          <Image src={heroImage} alt={post.data.title} width={thumbWidth} height={thumbHeight} />
+        ) : (
+          <div class="placeholder fill" />
+        )}
+      </div>
+      <div class="meta">{meta}</div>
+      <h3>{post.data.title}</h3>
+      {excerpt && <p class="excerpt">{excerpt}</p>}
+    </a>
+  </article>
+)}
+
+<style>
+  .card a {
+    display: block;
+    color: var(--ink);
+  }
+
+  .card a:hover {
+    color: var(--ink);
+  }
+
+  .thumb {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+  }
+
+  .thumb :global([data-astro-lqip]),
+  .thumb :global(img),
+  .fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .thumb :global(img) {
+    object-fit: cover;
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 9px;
+  }
+
+  .excerpt {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  /* Featured */
+  .featured {
+    min-width: 0;
+    flex: 1.35 1 340px;
+  }
+
+  .featured:hover {
+    transform: translateY(-3px);
+  }
+
+  .featured .thumb {
+    aspect-ratio: 16 / 10;
+    border-radius: 7px;
+    background: var(--cream-mid);
+  }
+
+  .featured .chips {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .featured h3 {
+    margin: 22px 0 12px;
+    max-width: 26ch;
+    font-size: clamp(30px, 3.2vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .featured .excerpt {
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  /* Compact */
+  .compact {
+    border-top: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .compact:hover {
+    background: var(--paper);
+  }
+
+  .compact a {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    align-items: start;
+    gap: 20px;
+    padding: 22px 12px;
+  }
+
+  .compact .thumb {
+    aspect-ratio: 1;
+  }
+
+  .compact .body {
+    min-width: 0;
+  }
+
+  .compact h4 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+  }
+
+  .compact .excerpt {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* Grid */
+  .grid:hover {
+    transform: translateY(-3px);
+  }
+
+  .grid .thumb {
+    aspect-ratio: 4 / 3;
+  }
+
+  .grid .meta {
+    margin-top: 16px;
+  }
+
+  .grid h3 {
+    margin: 0 0 8px;
+    font-size: 26px;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+
+  .grid .excerpt {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+</style>

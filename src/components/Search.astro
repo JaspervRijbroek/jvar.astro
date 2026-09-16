@@ -1,0 +1,233 @@
+---
+/**
+ * Search dialog. Opened by the header buttons (`[data-search-open]`), it
+ * fetches the static `/search.json` index on first use and filters titles
+ * client-side.
+ */
+---
+<dialog id="search-dialog" aria-label="Search posts" class="search">
+  <div class="top">
+    <label class="sr-only" for="search-input">Search posts</label>
+    <input
+      id="search-input"
+      type="search"
+      placeholder="Search posts…"
+      autocomplete="off"
+      class="transition-motion"
+    />
+    <button type="button" class="close transition-motion" data-search-close>Close</button>
+  </div>
+
+  <div class="results" id="search-results"></div>
+</dialog>
+
+<script>
+  type Hit = { title: string; path: string; topic: string | null; date: string; minutes: number };
+
+  const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+  const input = document.getElementById('search-input') as HTMLInputElement | null;
+  const results = document.getElementById('search-results');
+
+  let index: Hit[] | null = null;
+  let loading: Promise<Hit[]> | null = null;
+
+  function loadIndex() {
+    if (index) return Promise.resolve(index);
+    loading ??= fetch('/search.json')
+      .then((response) => response.json() as Promise<Hit[]>)
+      .then((hits) => (index = hits));
+    return loading;
+  }
+
+  function escapeHtml(value: string) {
+    return value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+  }
+
+  function render(keyword: string, hits: Hit[]) {
+    if (!results) return;
+
+    if (!keyword) {
+      results.innerHTML = '';
+      return;
+    }
+
+    if (hits.length === 0) {
+      results.innerHTML = `<p class="empty">Nothing found for “${escapeHtml(keyword)}”.</p>`;
+      return;
+    }
+
+    results.innerHTML = hits
+      .map((hit) => {
+        const meta = [hit.topic, hit.date, `${hit.minutes} min`].filter(Boolean).join(' · ');
+        return `<article class="hit transition-motion">
+          <a href="${hit.path}">
+            <div class="meta">${escapeHtml(meta)}</div>
+            <h2>${escapeHtml(hit.title)}</h2>
+          </a>
+        </article>`;
+      })
+      .join('');
+  }
+
+  async function search(keyword: string) {
+    const query = keyword.trim().toLowerCase();
+    if (!query) {
+      render('', []);
+      return;
+    }
+
+    let hits: Hit[];
+    try {
+      hits = await loadIndex();
+    } catch {
+      if (results) {
+        results.innerHTML = '<p class="empty">Search is unavailable right now. Please try again later.</p>';
+      }
+      return;
+    }
+
+    render(keyword, hits.filter((hit) => hit.title.toLowerCase().includes(query)));
+  }
+
+  function open() {
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    input?.focus();
+    loadIndex().catch(() => {});
+  }
+
+  function close() {
+    dialog?.close();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-search-open]').forEach((button) => {
+    button.addEventListener('click', open);
+  });
+  dialog?.querySelector('[data-search-close]')?.addEventListener('click', close);
+  input?.addEventListener('input', () => search(input.value));
+
+  // Clicking the backdrop closes the dialog.
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) close();
+  });
+
+  dialog?.addEventListener('close', () => {
+    if (input) input.value = '';
+    render('', []);
+  });
+</script>
+
+<style>
+  .search {
+    width: min(760px, 92vw);
+    max-width: none;
+    margin: auto;
+    padding: clamp(20px, 4vw, 32px);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: 0 30px 60px -20px rgba(49, 40, 30, 0.5);
+  }
+
+  .search::backdrop {
+    background: rgba(20, 14, 10, 0.6);
+  }
+
+  .search[open] {
+    animation: fadein 250ms ease-in forwards;
+  }
+
+  .top {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  input {
+    flex: 1;
+    min-height: 44px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--cream-page);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+  }
+
+  input::placeholder {
+    color: var(--muted);
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(194, 90, 51, 0.14);
+  }
+
+  .close {
+    min-height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    background: var(--accent-dark);
+  }
+
+  .results {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-top: 24px;
+  }
+
+  .results :global(.empty) {
+    padding: 32px 0;
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .results :global(.hit) {
+    margin: 0 -12px;
+    border-top: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .results :global(.hit:first-child) {
+    border-top: 0;
+  }
+
+  .results :global(.hit:hover) {
+    background: var(--paper);
+  }
+
+  .results :global(.hit a) {
+    display: block;
+    padding: 16px 12px;
+    color: var(--ink);
+  }
+
+  .results :global(.hit .meta) {
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .results :global(.hit h2) {
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+/**
+ * Newer / older navigation under a post listing. Page 1 lives at `base`,
+ * later pages at `${base}page/N/`.
+ */
+interface Props {
+  currentPage: number;
+  numPages: number;
+  base: string;
+}
+
+const { currentPage, numPages, base } = Astro.props;
+
+const isFirst = currentPage === 1;
+const isLast = currentPage === numPages;
+const prev = currentPage === 2 ? base : `${base}page/${currentPage - 1}/`;
+const next = `${base}page/${currentPage + 1}/`;
+---
+<nav aria-label="Pagination" class="pagination">
+  {!isFirst ? (
+    <a href={prev} title="Newer entries" class="btn btn-ghost page-btn">← Newer entries</a>
+  ) : (
+    <span />
+  )}
+
+  <span class="count">Page {currentPage} of {numPages}</span>
+
+  {!isLast ? (
+    <a href={next} title="Older entries" class="btn btn-ghost page-btn">Older entries →</a>
+  ) : (
+    <span />
+  )}
+</nav>
+
+<style>
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .page-btn {
+    padding: 12px 22px;
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

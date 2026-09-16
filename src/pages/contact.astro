@@ -1,0 +1,327 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+
+const EMAIL = 'hello@jvar.nl';
+
+const TRAIL = [
+  { label: 'Home', href: '/' },
+  { label: 'Contact', href: '/contact/' },
+];
+
+const SUBJECTS = ['Paperwork', 'Taxes', 'Places to visit', 'Working remotely', 'Something else'];
+
+const CONTACTS = [
+  { label: 'Email', value: EMAIL },
+  { label: 'Based in', value: 'Valencia, Spain' },
+  { label: 'Languages', value: 'Dutch, English, Spanish' },
+];
+---
+<Layout
+  title="Contact"
+  description="Get in touch with Jasper van Rijbroek — questions about moving to Spain, feedback on the site, or anything else."
+>
+  <Hero
+    slot="hero"
+    variant="page"
+    title="Say hola"
+    lede="Moving over, stuck on a form, or after a tip for a trip? Write to me and I'll answer from Valencia."
+  >
+    <Breadcrumbs slot="breadcrumbs" trail={TRAIL} />
+    <span slot="chips" class="badge teal">Contact</span>
+  </Hero>
+
+  <section class="wrap section contact">
+    <div class="layout">
+      <form class="contact-form" data-email={EMAIL}>
+        <div class="row">
+          <label>
+            <span class="field-label">Name</span>
+            <input type="text" name="name" placeholder="Your name" class="field transition-motion" />
+          </label>
+          <label>
+            <span class="field-label">Email</span>
+            <input type="email" name="email" placeholder="you@email.com" class="field transition-motion" />
+          </label>
+        </div>
+
+        <fieldset class="subjects">
+          <legend class="field-label">What is it about?</legend>
+          <div class="subject-pills">
+            {SUBJECTS.map((subject) => (
+              <button type="button" class="pill subject" aria-pressed="false" data-subject={subject}>
+                {subject}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <label>
+          <span class="field-label">Message</span>
+          <textarea name="message" rows="7" placeholder="Tell me what you're working on." class="field transition-motion"></textarea>
+        </label>
+
+        <div class="submit-row">
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <span class="hint">Opens in your mail app. Usually answered within two days.</span>
+        </div>
+      </form>
+
+      <div class="sidebar">
+        <div class="panel filled">
+          <div class="panel-label">Direct</div>
+          {CONTACTS.map((item) => (
+            <div class="contact-row">
+              <div class="contact-label">{item.label}</div>
+              <div class="contact-value">
+                {item.label === 'Email' ? <a href={`mailto:${item.value}`}>{item.value}</a> : item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="panel">
+          <div class="panel-label tight">Before you write</div>
+          <p class="panel-copy">
+            Most NIE, residency and tax questions are already answered in the guides, with dates on them.
+          </p>
+          <a href="/topic/essentials/" class="browse transition-motion">Browse essentials →</a>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label tight">Social</div>
+          <p class="panel-copy last">
+            You can also find me on{' '}
+            <a href="https://www.linkedin.com/in/jaspervanrijbroek" target="_blank" rel="noreferrer" class="underline">LinkedIn</a>
+            {' '}or{' '}
+            <a href="https://github.com/JaspervRijbroek" target="_blank" rel="noreferrer" class="underline">GitHub</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  /*
+   * There is no form backend, so the send button hands the message to the
+   * visitor's own mail client with everything already filled in.
+   */
+  const form = document.querySelector<HTMLFormElement>('.contact-form');
+  const pills = Array.from(document.querySelectorAll<HTMLButtonElement>('.subject'));
+  let subject: string | null = null;
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const value = pill.dataset.subject ?? null;
+      subject = subject === value ? null : value;
+      pills.forEach((other) => {
+        const pressed = other.dataset.subject === subject;
+        other.classList.toggle('active', pressed);
+        other.setAttribute('aria-pressed', String(pressed));
+      });
+    });
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const data = new FormData(form);
+    const name = String(data.get('name') ?? '');
+    const email = String(data.get('email') ?? '');
+    const message = String(data.get('message') ?? '');
+
+    const lines = [name && `From: ${name}`, email && `Reply to: ${email}`, '', message]
+      .filter((line) => line !== '')
+      .join('\n');
+
+    window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(
+      subject ? `Jvar — ${subject}` : 'Jvar — a question'
+    )}&body=${encodeURIComponent(lines)}`;
+  });
+</script>
+
+<style>
+  .contact {
+    padding-top: clamp(40px, 6vw, 72px);
+  }
+
+  .badge.teal {
+    background: var(--accent-2);
+  }
+
+  .layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: clamp(32px, 5vw, 64px);
+  }
+
+  .contact-form {
+    display: flex;
+    flex: 1.3 1 360px;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field {
+    min-height: 44px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--cream-page);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .field::placeholder {
+    color: var(--muted);
+  }
+
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(194, 90, 51, 0.14);
+  }
+
+  textarea.field {
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  .subjects {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .subjects legend {
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  .subject-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .subject {
+    min-height: 44px;
+    padding: 11px 18px;
+  }
+
+  .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hint {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .sidebar {
+    display: flex;
+    flex: 1 1 280px;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .panel {
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+  }
+
+  .panel.filled {
+    background: var(--paper-2);
+  }
+
+  .panel-label {
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-label.tight {
+    margin-bottom: 12px;
+  }
+
+  .contact-row {
+    padding: 12px 0;
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .contact-label {
+    margin-bottom: 3px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .contact-value {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .panel-copy {
+    margin: 0 0 16px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--body-ink);
+  }
+
+  .panel-copy.last {
+    margin-bottom: 0;
+  }
+
+  .browse {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rust);
+  }
+
+  .browse:hover {
+    color: var(--ink);
+  }
+
+  .underline {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

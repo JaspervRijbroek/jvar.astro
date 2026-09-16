@@ -1,0 +1,28 @@
+---
+import { getSiteTopics, topicPath } from '../lib/content';
+
+/** Pill row above a post listing: "All" plus every browsable topic. */
+interface Props {
+  activeTopic?: string;
+}
+
+const { activeTopic } = Astro.props;
+const topics = await getSiteTopics();
+---
+<div class="filters">
+  <a href="/" class:list={['pill', { active: !activeTopic }]}>All</a>
+  {topics.map((topic) => (
+    <a href={topicPath(topic)} class:list={['pill', { active: activeTopic === topic.data.slug }]}>
+      {topic.data.title}
+    </a>
+  ))}
+</div>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+</style>

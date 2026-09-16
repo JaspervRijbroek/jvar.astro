@@ -1,0 +1,34 @@
+---
+import PostList from '../../../../components/PostList.astro';
+import { getSiteTopics, getPostsByTopicTitle, pageCount, topicPath } from '../../../../lib/content';
+import { getTopicHeroImage } from '../../../../lib/images';
+
+/** Pages 2+ of a topic; page 1 is `/topic/<slug>/`. */
+export async function getStaticPaths() {
+  const topics = await getSiteTopics();
+  const paths = [];
+
+  for (const topic of topics) {
+    const posts = await getPostsByTopicTitle(topic.data.title);
+    const numPages = pageCount(posts.length);
+    for (let page = 2; page <= numPages; page++) {
+      paths.push({ params: { topic: topic.data.slug, page: String(page) }, props: { topic, posts, page } });
+    }
+  }
+
+  return paths;
+}
+
+const { topic, posts, page } = Astro.props;
+const description = (topic.body ?? '').trim();
+---
+<PostList
+  posts={posts}
+  currentPage={page}
+  base={topicPath(topic)}
+  title={topic.data.title}
+  lede={description}
+  topicSlug={topic.data.slug}
+  image={getTopicHeroImage(topic.data.slug)}
+  description={description}
+/>

@@ -1,17 +1,348 @@
 ---
+import { Image } from 'astro-lqip/components';
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import PostCard from '../components/PostCard.astro';
+import AuthorBio from '../components/AuthorBio.astro';
+import { getTopicHeroImage } from '../lib/images';
+import {
+  getNavTopics,
+  getHomePosts,
+  getPostsByTopicTitle,
+  formatDate,
+  paginate,
+  pageCount,
+  postPath,
+  topicPath,
+  SITE_URL,
+  SITE_TITLE,
+  AUTHOR_NAME,
+} from '../lib/content';
 
+const navTopics = await getNavTopics();
+const [essentials, places, everythingSpain] = navTopics;
+
+const allPosts = await getHomePosts();
+const numPages = pageCount(allPosts.length);
+const [featured, ...rest] = paginate(allPosts, 1);
+
+const guides = essentials ? (await getPostsByTopicTitle(essentials.data.title)).slice(0, 5) : [];
+
+/** "Start here" — the three ways into the blog. */
+const CARDS = [
+  essentials && {
+    topic: essentials,
+    kicker: '01 — Paperwork',
+    body: "NIE, residency, taxes, housing. The admin, in the order you'll actually meet it.",
+    kickerColor: 'var(--tan)',
+    overlay: 'linear-gradient(180deg,rgba(140,52,26,0.78),rgba(112,38,16,0.9))',
+    background: '#c25a33',
+  },
+  places && {
+    topic: places,
+    kicker: '02 — Getting out',
+    body: "Cities, coastlines and day trips we've done with the family, and what they cost.",
+    kickerColor: 'var(--sky)',
+    overlay: 'linear-gradient(180deg,rgba(22,66,80,0.76),rgba(14,48,60,0.9))',
+    background: '#2f6e84',
+  },
+  everythingSpain && {
+    topic: everythingSpain,
+    kicker: '03 — The family',
+    body: 'Three years of life here, written as it happened. Start at year one.',
+    kickerColor: 'var(--tan)',
+    overlay: 'linear-gradient(180deg,rgba(40,30,20,0.35),rgba(40,30,20,0.82))',
+    background: '#7a6a56',
+    backgroundImage: 'repeating-linear-gradient(135deg,#6f6150 0 10px,#847357 10px 20px)',
+  },
+].filter((card): card is Exclude<typeof card, false | undefined> => Boolean(card));
+
+const pageTitle = 'Jvar – Dutch Expat Life in Spain | Tips & Guides';
+const description = 'A Dutch family documenting life in Valencia, Spain.';
+
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: SITE_TITLE,
+  url: SITE_URL,
+  description,
+  isFamilyFriendly: true,
+  copyrightHolder: AUTHOR_NAME,
+  blogPost: paginate(allPosts, 1).map((post) => ({
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    url: SITE_URL + postPath(post),
+    datePublished: post.data.date.toISOString(),
+    dateModified: (post.data.updated ?? post.data.date).toISOString(),
+    description: post.data.teaser,
+    author: { '@type': 'Person', name: AUTHOR_NAME },
+    publisher: { '@type': 'Organization', name: SITE_TITLE },
+  })),
+};
 ---
+<Layout title="Home" description={description}>
+  <Fragment slot="head">
+    <link rel="canonical" href={`${SITE_URL}/`} />
+    <script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
+  </Fragment>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro </h1>
-	</body>
-</html>
+  <Hero
+    slot="hero"
+    variant="home"
+    eyebrow="Valencia, Spain — since 2023"
+    title="Follow us on our Spanish Adventure"
+    lede="Join me as I take you on a journey through my life in Spain, sharing both the challenges and joys, and my favorite places and things to do. Follow along and discover something new before moving or living in Spain."
+  >
+    <Fragment slot="actions">
+      {essentials && <a class="btn btn-primary" href={topicPath(essentials)}>Start with the essentials</a>}
+      {places && <a class="btn btn-outline" href={topicPath(places)}>Places we love</a>}
+    </Fragment>
+  </Hero>
+
+  <section class="wrap section" aria-labelledby="start-here">
+    <SectionHeading id="start-here" title="Start here" note="Three ways in" mb={32} />
+    <div class="cards-grid">
+      {CARDS.map((card) => {
+        const image = getTopicHeroImage(card.topic.data.slug);
+        return (
+          <a
+            class="topic-card transition-motion"
+            href={topicPath(card.topic)}
+            style={`background-color:${card.background};${card.backgroundImage ? `background-image:${card.backgroundImage}` : ''}`}
+          >
+            {image && <Image src={image} alt="" width={620} height={775} />}
+            <div class="tint" style={`background-image:${card.overlay}`} aria-hidden="true"></div>
+            <div class="kicker" style={`color:${card.kickerColor}`}>{card.kicker}</div>
+            <div class="topic-card-body">
+              <h3>{card.topic.data.title}</h3>
+              <p>{card.body}</p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  {featured && (
+    <section class="wrap section" aria-labelledby="latest">
+      <SectionHeading
+        id="latest"
+        title="Latest"
+        note="Older posts →"
+        noteHref={numPages > 1 ? '/page/2/' : '/'}
+        mb={36}
+      />
+      <div class="latest-grid">
+        <PostCard post={featured} variant="featured" />
+        <div class="recent-list">
+          {rest.map((post) => <PostCard post={post} variant="compact" />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {guides.length > 0 && (
+    <section class="wrap section">
+      <div class="guides-panel">
+        <div>
+          <div class="guides-kicker">The paperwork shortcut</div>
+          <h2>Every guide, in the order you need it</h2>
+          <p>Checked and dated, so you know what still applies before you book an appointment.</p>
+        </div>
+        <div class="guides-list">
+          {guides.map((post, i) => (
+            <a class="guide-row transition-motion" href={postPath(post)}>
+              <span class="guide-left">
+                <span class="guide-number">{String(i + 1).padStart(2, '0')}</span>
+                <span class="guide-title">{post.data.title}</span>
+              </span>
+              <span class="guide-updated">Updated {formatDate(post.data.updated ?? post.data.date, 'month')}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="wrap section pb-16">
+    <AuthorBio variant="full" />
+  </section>
+</Layout>
+
+<style>
+  .pb-16 {
+    padding-bottom: 16px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .topic-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 300px;
+    overflow: hidden;
+    padding: 32px;
+    border-radius: 7px;
+    color: #fff;
+  }
+
+  .topic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px -18px rgba(49, 40, 30, 0.45);
+    color: #fff;
+  }
+
+  .topic-card :global([data-astro-lqip]) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .topic-card :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .topic-card .tint {
+    position: absolute;
+    inset: 0;
+  }
+
+  .kicker {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .topic-card-body {
+    position: relative;
+  }
+
+  .topic-card-body h3 {
+    margin: 0 0 10px;
+    font-size: 32px;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: #fff;
+  }
+
+  .topic-card-body p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .latest-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 48px;
+  }
+
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 300px;
+    min-width: 0;
+  }
+
+  .guides-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: center;
+    gap: clamp(28px, 4vw, 48px);
+    padding: clamp(24px, 4vw, 44px);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--paper-2);
+  }
+
+  .guides-kicker {
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rust);
+  }
+
+  .guides-panel h2 {
+    margin: 0 0 12px;
+    font-size: clamp(30px, 4vw, 38px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  .guides-panel > div:first-child p {
+    margin: 0;
+    max-width: 44ch;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .guides-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .guide-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 20px;
+    margin: 0 -10px;
+    padding: 16px 10px;
+    border-top: 1px solid var(--border-strong);
+    border-radius: 6px;
+    color: var(--ink);
+  }
+
+  .guide-row:hover {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .guide-left {
+    display: flex;
+    flex: 1 1 220px;
+    align-items: baseline;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .guide-number {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--rust);
+  }
+
+  .guide-title {
+    min-width: 0;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .guide-updated {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

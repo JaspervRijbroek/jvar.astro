@@ -1,0 +1,137 @@
+---
+import { render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import PostCard from '../../components/PostCard.astro';
+import AuthorBio from '../../components/AuthorBio.astro';
+import { getPostHeroImage } from '../../lib/images';
+import {
+  getAllPostsSorted,
+  getRelatedPosts,
+  getTopicTitleToSlugMap,
+  formatDate,
+  estimateReadingMinutes,
+  postPath,
+  topicPath,
+  SITE_URL,
+  SITE_TITLE,
+  AUTHOR_NAME,
+} from '../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getAllPostsSorted();
+  return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const heroImage = getPostHeroImage(post.data.slug);
+const minutes = estimateReadingMinutes(post.body ?? '');
+const topicSlugs = await getTopicTitleToSlugMap();
+const topics = post.data.topics
+  .map((title) => ({ title, slug: topicSlugs.get(title) }))
+  .filter((t): t is { title: string; slug: string } => Boolean(t.slug));
+
+/** Home / first topic / post. Older posts predate topics, hence the guard. */
+const trail = [
+  { label: 'Home', href: '/' },
+  ...(topics[0] ? [{ label: topics[0].title, href: topicPath(topics[0].slug) }] : []),
+  { label: post.data.title, href: postPath(post) },
+];
+
+const related = await getRelatedPosts(post);
+const description = post.data.seoDescription ?? post.data.teaser ?? '';
+const canonicalUrl = SITE_URL + postPath(post);
+
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': `${canonicalUrl}#BlogPosting`,
+  headline: post.data.title,
+  datePublished: post.data.date.toISOString(),
+  dateModified: (post.data.updated ?? post.data.date).toISOString(),
+  description: post.data.teaser,
+  url: canonicalUrl,
+  inLanguage: 'en',
+  isFamilyFriendly: true,
+  copyrightHolder: AUTHOR_NAME,
+  author: {
+    '@type': 'Person',
+    '@id': `${SITE_URL}/about/#Person`,
+    name: AUTHOR_NAME,
+    url: `${SITE_URL}/about/`,
+  },
+  publisher: { '@type': 'Organization', '@id': SITE_URL, name: SITE_TITLE },
+  ...(related.length > 0 && { relatedLink: related.map((p) => SITE_URL + postPath(p)) }),
+};
+---
+<Layout title={post.data.title} description={description}>
+  <Fragment slot="head">
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={post.data.title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="article:published_time" content={post.data.date.toISOString()} />
+    <script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
+  </Fragment>
+
+  <Hero slot="hero" variant="article" title={post.data.title} image={heroImage} imageAlt={post.data.title}>
+    <Breadcrumbs slot="breadcrumbs" trail={trail} />
+    <Fragment slot="chips">
+      {topics.map((topic) => (
+        <a href={topicPath(topic.slug)} class="badge transition-motion">{topic.title}</a>
+      ))}
+      <span class="badge outline">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date, 'long')}</time>
+        {' · '}{minutes} min read
+      </span>
+    </Fragment>
+  </Hero>
+
+  <article class="article">
+    {post.data.teaser && <p class="lede">{post.data.teaser}</p>}
+
+    <div class="post-body clearfix">
+      <Content />
+    </div>
+
+    <AuthorBio variant="byline" />
+  </article>
+
+  {related.length > 0 && (
+    <section class="wrap read-next" aria-labelledby="read-next">
+      <SectionHeading id="read-next" title="Read next" rule="top" mb={32} />
+      <div class="grid">
+        {related.map((p) => <PostCard post={p} variant="grid" />)}
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .article {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(40px, 7vw, 64px) var(--page-pad) 0;
+  }
+
+  .lede {
+    margin: 0 0 28px;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import type { ImageMetadata } from 'astro';
+import Layout from '../layouts/Layout.astro';
+import Hero from './Hero.astro';
+import Breadcrumbs, { type Crumb } from './Breadcrumbs.astro';
+import TopicFilters from './TopicFilters.astro';
+import PostCard from './PostCard.astro';
+import Pagination from './Pagination.astro';
+import { type Post, POSTS_PER_PAGE, paginate, pageCount } from '../lib/content';
+
+/**
+ * Paginated listing screen: a topic's posts, or the whole archive when no
+ * topic is given. Page 1 lives at `base`, later pages at `${base}page/N/`.
+ */
+interface Props {
+  posts: Post[];
+  currentPage: number;
+  base: string;
+  title: string;
+  lede?: string | null;
+  topicSlug?: string;
+  image?: ImageMetadata;
+  description?: string;
+}
+
+const { posts, currentPage, base, title, lede, topicSlug, image, description } = Astro.props;
+
+const numPages = pageCount(posts.length);
+const pagePosts = paginate(posts, currentPage);
+
+const chipLabel = topicSlug
+  ? `Topic${posts.length ? ` — ${posts.length} posts` : ''}`
+  : `Page ${currentPage} of ${numPages}`;
+
+const trail: Crumb[] = [
+  { label: 'Home', href: '/' },
+  topicSlug
+    ? { label: title, href: base }
+    : { label: 'All posts', href: `${base}page/${currentPage}/` },
+];
+
+const pageTitle = currentPage > 1 && !topicSlug ? `All posts — page ${currentPage}` : title;
+---
+<Layout title={pageTitle} description={description} noindex={currentPage > 1}>
+  <Fragment slot="head">
+    {currentPage > 1 && (
+      <link rel="prev" href={currentPage === 2 ? base : `${base}page/${currentPage - 1}/`} />
+    )}
+    {currentPage < numPages && <link rel="next" href={`${base}page/${currentPage + 1}/`} />}
+  </Fragment>
+
+  <Hero slot="hero" variant="page" title={title} lede={lede} image={image} imageAlt={title}>
+    <Breadcrumbs slot="breadcrumbs" trail={trail} />
+    <span slot="chips" class="badge">{chipLabel}</span>
+  </Hero>
+
+  <section class="wrap section">
+    <TopicFilters activeTopic={topicSlug} />
+
+    <div class="grid">
+      {pagePosts.map((post) => <PostCard post={post} variant="grid" />)}
+    </div>
+
+    {numPages > 0 && <Pagination currentPage={currentPage} numPages={numPages} base={base} />}
+  </section>
+</Layout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 36px 28px;
+  }
+</style>

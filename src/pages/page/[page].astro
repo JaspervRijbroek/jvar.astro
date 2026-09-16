@@ -1,0 +1,18 @@
+---
+import PostList from '../../components/PostList.astro';
+import { getHomePosts, pageCount } from '../../lib/content';
+
+/** The archive: every non-archived post, six per page. Page 1 is the home page. */
+export async function getStaticPaths() {
+  const posts = await getHomePosts();
+  const numPages = pageCount(posts.length);
+
+  return Array.from({ length: Math.max(numPages - 1, 0) }, (_, i) => ({
+    params: { page: String(i + 2) },
+    props: { posts, page: i + 2 },
+  }));
+}
+
+const { posts, page } = Astro.props;
+---
+<PostList posts={posts} currentPage={page} base="/" title="All posts" />

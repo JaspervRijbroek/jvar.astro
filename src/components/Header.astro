@@ -1,0 +1,297 @@
+---
+import { getNavTopics, getHomePosts, postPath, topicPath } from '../lib/content';
+
+/**
+ * Single source of truth for the site chrome: the header and the mobile panel
+ * both read from these lists.
+ */
+const navTopics = await getNavTopics();
+const posts = await getHomePosts();
+const latestPath = posts[0] ? postPath(posts[0]) : '/';
+
+const NAV_ITEMS = [
+  { label: 'Home', href: '/' },
+  ...navTopics
+    .filter((topic) => topic.data.slug !== 'everything-spain')
+    .map((topic) => ({ label: topic.data.title, href: topicPath(topic) })),
+  { label: 'About', href: '/about/' },
+];
+
+/** Mobile panel gets Contact too — there is room for it there. */
+const MOBILE_NAV_ITEMS = [...NAV_ITEMS, { label: 'Contact', href: '/contact/' }];
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => currentPath === href;
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <a href="/" class="logo">Jvar<span class="dot">.</span></a>
+
+    <div class="wide">
+      <nav aria-label="Main navigation" class="nav-wide">
+        {NAV_ITEMS.map((item) => (
+          <a href={item.href} class:list={['transition-motion', { active: isActive(item.href) }]}>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <button type="button" aria-label="Search" class="search-btn transition-motion" data-search-open>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="6" />
+          <path d="M13 13l4.5 4.5" />
+        </svg>
+      </button>
+      <a href={latestPath} class="cta transition-motion">Read latest</a>
+    </div>
+
+    <div class="narrow">
+      <button type="button" aria-label="Search" class="search-btn-mobile transition-motion" data-search-open>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="6" />
+          <path d="M13 13l4.5 4.5" />
+        </svg>
+      </button>
+      <button class="menu-toggle transition-motion" type="button" aria-expanded="false" aria-controls="mobile-nav">
+        <span class="bars" aria-hidden="true"><span></span><span></span></span>
+        <span class="menu-label">Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" class="mobile-nav" hidden>
+    <nav aria-label="Mobile navigation" class="wrap">
+      {MOBILE_NAV_ITEMS.map((item) => (
+        <a href={item.href} class:list={['transition-motion', { active: isActive(item.href) }]}>
+          {item.label}
+        </a>
+      ))}
+      <a href={latestPath} class="cta transition-motion">Read latest</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const panel = document.getElementById('mobile-nav');
+  const label = document.querySelector<HTMLSpanElement>('.menu-label');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = panel?.hidden === false;
+    if (panel) panel.hidden = isOpen;
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+    if (label) label.textContent = isOpen ? 'Menu' : 'Close';
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(251, 245, 233, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bar {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo {
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .logo:hover {
+    color: var(--ink);
+  }
+
+  .logo .dot {
+    color: var(--rust);
+  }
+
+  .wide {
+    display: none;
+    align-items: center;
+    gap: clamp(14px, 2.4vw, 28px);
+  }
+
+  .nav-wide {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 2.4vw, 28px);
+  }
+
+  .nav-wide a {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+
+  .nav-wide a:hover,
+  .nav-wide a.active {
+    color: var(--rust);
+  }
+
+  .search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .search-btn:hover {
+    color: var(--rust);
+  }
+
+  .cta {
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: var(--bg);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .cta:hover {
+    background: var(--navy-mid);
+    color: var(--bg);
+    transform: translateY(-1px);
+  }
+
+  .narrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-btn-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .search-btn-mobile:hover {
+    border-color: var(--accent);
+    color: var(--rust);
+  }
+
+  .menu-toggle {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    min-height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--paper);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .menu-toggle:hover {
+    border-color: var(--accent);
+    color: var(--rust);
+  }
+
+  .bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .bars span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+  }
+
+  .mobile-nav {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .mobile-nav nav {
+    padding-top: 12px;
+    padding-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-nav a {
+    display: block;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .mobile-nav a:hover,
+  .mobile-nav a.active {
+    color: var(--rust);
+  }
+
+  .mobile-nav a.cta {
+    margin-top: 14px;
+    padding: 14px 22px;
+    min-height: 44px;
+    border-radius: 999px;
+    border-bottom: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .mobile-nav a.cta:hover {
+    background: var(--accent-dark);
+    color: #fff;
+    transform: none;
+  }
+
+  @media (min-width: 820px) {
+    .wide {
+      display: flex;
+    }
+
+    .narrow,
+    .mobile-nav {
+      display: none;
+    }
+  }
+</style>

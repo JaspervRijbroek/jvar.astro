@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+---
+<Layout title="Page not found" noindex>
+  <Hero
+    slot="hero"
+    variant="page"
+    title="Page not found"
+    lede="You may have mistyped the address, or followed a link that has since expired."
+  >
+    <span slot="chips" class="badge">404</span>
+  </Hero>
+
+  <section class="wrap section pb-16">
+    <p class="copy">
+      Nothing lives at this address. The essentials guides and the places we've written about are both a click
+      away, or you can start over from the homepage.
+    </p>
+
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Back to the homepage</a>
+      <a href="/topic/essentials/" class="btn btn-ghost still">Browse the essentials</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .pb-16 {
+    padding-bottom: 16px;
+  }
+
+  .copy {
+    max-width: 58ch;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--body-ink);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  /* The original's secondary button changes colour on hover but does not lift. */
+  .still:hover {
+    transform: none;
+  }
+</style>

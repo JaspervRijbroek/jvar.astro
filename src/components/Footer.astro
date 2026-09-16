@@ -1,0 +1,113 @@
+---
+import { getNavTopics, topicPath } from '../lib/content';
+
+const navTopics = await getNavTopics();
+
+const FOOTER_READ = navTopics.map((topic) => ({ label: topic.data.title, href: topicPath(topic) }));
+
+const FOOTER_ELSEWHERE = [
+  { label: 'About', href: '/about/' },
+  { label: 'Contact', href: '/contact/' },
+  { label: 'Privacy Policy', href: '/privacy-policy/' },
+];
+---
+<footer class="site-footer dark-surface">
+  <div class="stripe"></div>
+  <div class="wrap columns">
+    <div>
+      <div class="logo">Jvar<span class="dot">.</span></div>
+      <p class="tagline">A Dutch family documenting life in Valencia, Spain.</p>
+    </div>
+    <div class="links">
+      <div class="heading">Read</div>
+      {FOOTER_READ.map((item) => <a href={item.href} class="transition-motion">{item.label}</a>)}
+    </div>
+    <div class="links">
+      <div class="heading">Elsewhere</div>
+      {FOOTER_ELSEWHERE.map((item) => <a href={item.href} class="transition-motion">{item.label}</a>)}
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="wrap">All rights reserved</div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 96px;
+    background: var(--navy);
+    color: var(--off-white);
+  }
+
+  .stripe {
+    height: 14px;
+    background-image: repeating-linear-gradient(90deg, #c25a33 0 14px, #2f6e84 14px 28px, #e8b96a 28px 42px);
+  }
+
+  .columns {
+    padding-top: 64px;
+    padding-bottom: 64px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+  }
+
+  .logo {
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+
+  .logo .dot {
+    color: var(--tan);
+  }
+
+  .tagline {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(253, 250, 245, 0.6);
+    max-width: 34ch;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 15px;
+    color: rgba(253, 250, 245, 0.75);
+  }
+
+  .heading {
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tan);
+  }
+
+  .links a {
+    color: rgba(253, 250, 245, 0.75);
+  }
+
+  .links a:hover {
+    color: var(--tan);
+  }
+
+  .bottom {
+    border-top: 1px solid rgba(253, 250, 245, 0.15);
+  }
+
+  .bottom .wrap {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(253, 250, 245, 0.45);
+  }
+</style>

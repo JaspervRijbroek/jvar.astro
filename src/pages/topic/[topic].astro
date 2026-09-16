@@ -1,0 +1,24 @@
+---
+import PostList from '../../components/PostList.astro';
+import { getSiteTopics, getPostsByTopicTitle, topicPath } from '../../lib/content';
+import { getTopicHeroImage } from '../../lib/images';
+
+export async function getStaticPaths() {
+  const topics = await getSiteTopics();
+  return topics.map((topic) => ({ params: { topic: topic.data.slug }, props: { topic } }));
+}
+
+const { topic } = Astro.props;
+const description = (topic.body ?? '').trim();
+const posts = await getPostsByTopicTitle(topic.data.title);
+---
+<PostList
+  posts={posts}
+  currentPage={1}
+  base={topicPath(topic)}
+  title={topic.data.title}
+  lede={description}
+  topicSlug={topic.data.slug}
+  image={getTopicHeroImage(topic.data.slug)}
+  description={description}
+/>

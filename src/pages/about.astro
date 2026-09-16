@@ -1,0 +1,353 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { SITE_URL, AUTHOR_NAME } from '../lib/content';
+
+const STATS = [
+  { value: '3', label: 'Years living in Valencia' },
+  { value: '40+', label: 'Guides written from experience' },
+  { value: '12', label: 'Spanish cities visited as a family' },
+  { value: '2', label: 'NIE appointment survived' },
+];
+
+const STORY = [
+  {
+    label: 'Why',
+    title: 'Why this site exists',
+    body: 'We moved from the Netherlands to Spain in 2023 and, like many people making the same decision, quickly learned that the dream comes with plenty of questions, paperwork, surprises, and adjustments. This website is our place to share that journey in a personal and honest way.',
+  },
+  {
+    label: 'What',
+    title: 'What we share',
+    body: 'We write about the real experience of moving to Spain: settling into a new city, dealing with practical challenges, learning how things work, and figuring out what we wish we had known earlier. The goal is to make the process feel a little less overwhelming for others.',
+  },
+  {
+    label: 'Lessons',
+    title: 'Lessons learned',
+    body: 'Some posts are practical, some are personal, and others are simply the things we learned the hard way. From everyday life in Spain to the unexpected challenges that come with relocating, we want to share the ups, downs, and useful takeaways as clearly as possible.',
+  },
+];
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${SITE_URL}/about/#Person`,
+  name: AUTHOR_NAME,
+  url: `${SITE_URL}/about/`,
+  jobTitle: 'Software Engineer',
+  description: 'Dutch software engineer living in Valencia, Spain since 2023.',
+  nationality: { '@type': 'Country', name: 'Netherlands' },
+  homeLocation: { '@type': 'Place', name: 'Spain' },
+  sameAs: [
+    'https://github.com/JaspervRijbroek',
+    'https://www.linkedin.com/in/jaspervanrijbroek',
+    'https://www.facebook.com/jasper.vanrijbroek/',
+  ],
+};
+---
+<Layout
+  title="About"
+  description="Learn more about the story behind our move to Spain in 2023, the challenges we encountered, and the lessons we learned."
+>
+  <Fragment slot="head">
+    <link rel="canonical" href={`${SITE_URL}/about/`} />
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  </Fragment>
+
+  <section class="wrap section top">
+    <div class="intro">
+      <div class="col-main">
+        <div class="kicker">About</div>
+        <h1>A Dutch family, three years into Spain</h1>
+        <p>
+          I'm a PHP and NodeJS developer who was born in Amsterdam, NL but now lives in beautiful Valencia, Spain. I
+          work remotely full-time and enjoy blogging about everything related to this wonderful country.
+        </p>
+      </div>
+      <div class="stats-card">
+        <div class="stats-label">By the numbers</div>
+        {STATS.map((stat) => (
+          <div class="stat-row">
+            <div class="stat-value">{stat.value}</div>
+            <div class="stat-label">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="how-we-got-here">
+    <SectionHeading id="how-we-got-here" title="How we got here" note="2023 — now" mb={8} />
+    {STORY.map((item) => (
+      <div class="story-row">
+        <div class="story-label">{item.label}</div>
+        <div class="story-body">
+          <h3>{item.title}</h3>
+          <p>{item.body}</p>
+        </div>
+      </div>
+    ))}
+  </section>
+
+  <section class="wrap section">
+    <div class="cards">
+      <div class="card orange">
+        <div class="eyebrow faded">What I write</div>
+        <p>The admin nobody warns you about, and the places worth the drive.</p>
+      </div>
+      <div class="card teal">
+        <div class="eyebrow faded">Why</div>
+        <p>Every guide here is something we had to work out ourselves first.</p>
+      </div>
+      <div class="card paper">
+        <div class="eyebrow muted">Day job</div>
+        <p class="ink">PHP and NodeJS developer, working remotely full-time from Valencia.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="connect">
+    <SectionHeading id="connect" title="Connect with me" mb={24} />
+    <p class="connect">
+      You can find me on{' '}
+      <a href="https://www.linkedin.com/in/jaspervanrijbroek" target="_blank" rel="noreferrer" class="underline">LinkedIn</a>
+      {' '}for my professional background, or on{' '}
+      <a href="https://github.com/JaspervRijbroek" target="_blank" rel="noreferrer" class="underline">GitHub</a>
+      {' '}to see what I'm building.
+    </p>
+  </section>
+
+  <section class="wrap section pb-16">
+    <div class="cta-panel dark-surface">
+      <div>
+        <h2>Questions about Spain?</h2>
+        <p>Let me know if you have any questions about Spain — I'd be more than happy to help!</p>
+      </div>
+      <a class="btn btn-primary" href="/contact/">Get in touch</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .top {
+    padding-top: clamp(48px, 7vw, 88px);
+  }
+
+  .pb-16 {
+    padding-bottom: 16px;
+  }
+
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: clamp(28px, 4vw, 56px);
+  }
+
+  .col-main {
+    flex: 1.2 1 340px;
+    min-width: 0;
+  }
+
+  .kicker {
+    margin-bottom: 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rust);
+  }
+
+  .col-main h1 {
+    margin: 0 0 20px;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .col-main p {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--body-ink);
+  }
+
+  .stats-card {
+    flex: 1 1 300px;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--paper-2);
+  }
+
+  .stats-label {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-strong);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 18px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-value {
+    flex: 0 0 auto;
+    font-weight: 800;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    flex: 1 1 140px;
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--body-ink);
+  }
+
+  .story-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 40px;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .story-label {
+    flex: 0 0 120px;
+    padding-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--rust);
+  }
+
+  .story-body {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .story-body h3 {
+    margin: 0 0 8px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .story-body p {
+    margin: 0;
+    max-width: 58ch;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+    padding: 32px;
+    border-radius: 7px;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .card.orange {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .card.teal {
+    background: var(--accent-2);
+    color: #fff;
+  }
+
+  .card.paper {
+    border: 1px solid var(--border);
+    background: var(--paper-2);
+  }
+
+  .eyebrow.faded {
+    opacity: 0.85;
+  }
+
+  .eyebrow.muted {
+    color: var(--muted);
+  }
+
+  .card .ink {
+    color: var(--ink);
+  }
+
+  .connect {
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--body-ink);
+  }
+
+  .underline {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .cta-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    padding: clamp(28px, 5vw, 52px);
+    border-radius: 7px;
+    background: var(--navy);
+    color: var(--off-white);
+  }
+
+  .cta-panel > div:first-child {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .cta-panel h2 {
+    margin: 0 0 10px;
+    font-size: clamp(28px, 4vw, 34px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--off-white);
+  }
+
+  .cta-panel p {
+    margin: 0;
+    max-width: 44ch;
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgba(253, 250, 245, 0.7);
+  }
+</style>
