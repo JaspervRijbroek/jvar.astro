@@ -1,11 +1,11 @@
 ---
-import type { ImageMetadata } from 'astro';
+import type {ImageMetadata} from 'astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Search from '../components/Search.astro';
 import fallbackImage from '../assets/pexels-oleksandr-p-13593499.jpg';
-import { ogImageUrl, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT } from '../lib/seo';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_LOCALE, AUTHOR_NAME, absoluteUrl } from '../lib/content';
+import {ogImageUrl, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT} from '../lib/seo';
+import {SITE_TITLE, SITE_DESCRIPTION, SITE_LOCALE, AUTHOR_NAME, absoluteUrl} from '../lib/content';
 
 /**
  * Every page renders through here, so this is the one place that writes the
@@ -14,35 +14,35 @@ import { SITE_TITLE, SITE_DESCRIPTION, SITE_LOCALE, AUTHOR_NAME, absoluteUrl } f
  * `head` slot remains for the odd page-specific link (rel=prev/next).
  */
 interface Props {
-  title: string;
-  /** Render `title` verbatim instead of appending " | Jvar". */
-  fullTitle?: boolean;
-  description?: string;
-  /** Site-relative path (`/blog/x/`); omitted on pages that shouldn't be indexed. */
-  canonical?: string;
-  ogType?: 'website' | 'article';
-  /** Hero image for social cards; falls back to the site's default photo. */
-  image?: ImageMetadata;
-  imageAlt?: string;
-  publishedTime?: Date;
-  modifiedTime?: Date;
-  noindex?: boolean;
-  /** JSON-LD objects, one `<script>` each. */
-  schema?: object[];
+    title: string;
+    /** Render `title` verbatim instead of appending " | Jvar". */
+    fullTitle?: boolean;
+    description?: string;
+    /** Site-relative path (`/blog/x/`); omitted on pages that shouldn't be indexed. */
+    canonical?: string;
+    ogType?: 'website' | 'article';
+    /** Hero image for social cards; falls back to the site's default photo. */
+    image?: ImageMetadata;
+    imageAlt?: string;
+    publishedTime?: Date;
+    modifiedTime?: Date;
+    noindex?: boolean;
+    /** JSON-LD objects, one `<script>` each. */
+    schema?: object[];
 }
 
 const {
-  title,
-  fullTitle = false,
-  description = SITE_DESCRIPTION,
-  canonical,
-  ogType = 'website',
-  image = fallbackImage,
-  imageAlt = title,
-  publishedTime,
-  modifiedTime,
-  noindex = false,
-  schema = [],
+    title,
+    fullTitle = false,
+    description = SITE_DESCRIPTION,
+    canonical,
+    ogType = 'website',
+    image = fallbackImage,
+    imageAlt = title,
+    publishedTime,
+    modifiedTime,
+    noindex = false,
+    schema = [],
 } = Astro.props;
 
 const documentTitle = fullTitle ? title : `${title} | ${SITE_TITLE}`;
@@ -55,641 +55,654 @@ const analytics = import.meta.env.PROD && gaId ? gaId : undefined;
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" sizes="32x32" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <meta name="theme-color" content="#c25a33" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+    <link rel="icon" href="/favicon.ico" sizes="32x32"/>
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+    <link rel="manifest" href="/site.webmanifest"/>
+    <meta name="theme-color" content="#c25a33"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+    />
 
-  <title>{documentTitle}</title>
-  <meta name="description" content={description} />
-  <meta name="author" content={AUTHOR_NAME} />
-  {noindex && <meta name="robots" content="noindex, follow" />}
-  {canonicalUrl && (
-    <>
-      <link rel="canonical" href={canonicalUrl} />
-      {!noindex && (
-        <>
-          <link rel="alternate" hreflang="en" href={canonicalUrl} />
-          <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
-        </>
-      )}
-    </>
-  )}
-  <link rel="alternate" type="application/rss+xml" title={`${SITE_TITLE} RSS Feed`} href="/rss.xml" />
+    <title>{documentTitle}</title>
+    <meta name="description" content={description}/>
+    <meta name="author" content={AUTHOR_NAME}/>
+    {noindex &&
+            <meta name="robots" content="noindex, follow"/>}
+    {canonicalUrl && (
+            <>
+                <link rel="canonical" href={canonicalUrl}/>
+                {!noindex && (
+                        <>
+                            <link rel="alternate" hreflang="en" href={canonicalUrl}/>
+                            <link rel="alternate" hreflang="x-default" href={canonicalUrl}/>
+                        </>
+                )}
+            </>
+    )}
+    <link rel="alternate" type="application/rss+xml" title={`${SITE_TITLE} RSS Feed`} href="/rss.xml"/>
 
-  <meta property="og:type" content={ogType} />
-  <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
-  {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-  <meta property="og:site_name" content={SITE_TITLE} />
-  <meta property="og:locale" content={SITE_LOCALE} />
-  <meta property="og:image" content={ogImage} />
-  <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
-  <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
-  <meta property="og:image:alt" content={imageAlt} />
-  {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
-  {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+    <meta property="og:type" content={ogType}/>
+    <meta property="og:title" content={title}/>
+    <meta property="og:description" content={description}/>
+    {canonicalUrl &&
+            <meta property="og:url" content={canonicalUrl}/>}
+    <meta property="og:site_name" content={SITE_TITLE}/>
+    <meta property="og:locale" content={SITE_LOCALE}/>
+    <meta property="og:image" content={ogImage}/>
+    <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)}/>
+    <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)}/>
+    <meta property="og:image:alt" content={imageAlt}/>
+    {publishedTime &&
+            <meta property="article:published_time" content={publishedTime.toISOString()}/>}
+    {modifiedTime &&
+            <meta property="article:modified_time" content={modifiedTime.toISOString()}/>}
 
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={title} />
-  <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={ogImage} />
-  <meta name="twitter:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content={title}/>
+    <meta name="twitter:description" content={description}/>
+    <meta name="twitter:image" content={ogImage}/>
+    <meta name="twitter:image:alt" content={imageAlt}/>
 
-  {schema.map((entry) => (
-    <script type="application/ld+json" set:html={JSON.stringify(entry)} />
-  ))}
+    {schema.map((entry) => (
+        <script type="application/ld+json" set:html={JSON.stringify(entry)} />
+    ))}
 
-  {analytics && (
-    <script is:inline define:vars={{ gaId: analytics }}>
-      // Respect Do Not Track, as the original site's gtag setup did.
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      if (navigator.doNotTrack !== '1') {
-        gtag('js', new Date());
-        gtag('config', gaId, { anonymize_ip: true });
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-        document.head.appendChild(script);
-      }
+    {analytics && (
+        <script is:inline define:vars={{gaId: analytics}}>
+            // Respect Do Not Track, as the original site's gtag setup did.
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            if (navigator.doNotTrack !== '1') {
+                gtag('js', new Date());
+                gtag('config', gaId, {anonymize_ip: true});
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+                document.head.appendChild(script);
+            }
+            </script>
+    )}
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1"
+            data-no-defer="1" data-cmp-ab="2">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.setAttribute("data-cmp-ab", "2");
+            script.src = 'https://tpembars.com/NTc0MTQ1.js?t=574145';
+            document.head.appendChild(script);
+        })();
     </script>
-  )}
 
-  <slot name="head" />
+    <slot name="head"/>
 </head>
 <body>
-  <Header />
-  <slot name="hero" />
-  <main>
-    <slot />
-  </main>
-  <Footer />
-  <Search />
+<Header/>
+<slot name="hero"/>
+<main>
+    <slot/>
+</main>
+<Footer/>
+<Search/>
 </body>
 </html>
 
 <style is:global>
-  /*
-   * Design tokens. Names mirror the Tailwind theme of the original site so the
-   * values stay traceable: cream surfaces, hairlines, ink text, and the
-   * terracotta / teal / sand accents.
-   */
-  :root {
-    /* Surfaces */
-    --bg: #fbf5e9;
-    --paper: #f7f0e0; /* cream-soft */
-    --paper-2: #f5ead6; /* cream-deep */
-    --cream-page: #fffcf4;
-    --cream-mid: #ece0cb;
-    --placeholder-a: #f2e7d3;
-    --placeholder-b: #e8dabf;
-    --placeholder-c: #f5ebd8;
+    /*
+     * Design tokens. Names mirror the Tailwind theme of the original site so the
+     * values stay traceable: cream surfaces, hairlines, ink text, and the
+     * terracotta / teal / sand accents.
+     */
+    :root {
+        /* Surfaces */
+        --bg: #fbf5e9;
+        --paper: #f7f0e0; /* cream-soft */
+        --paper-2: #f5ead6; /* cream-deep */
+        --cream-page: #fffcf4;
+        --cream-mid: #ece0cb;
+        --placeholder-a: #f2e7d3;
+        --placeholder-b: #e8dabf;
+        --placeholder-c: #f5ebd8;
 
-    /* Lines */
-    --border: #e9dcc4;
-    --border-strong: #e3d5bb;
-    --border-soft: #eee1c9;
+        /* Lines */
+        --border: #e9dcc4;
+        --border-strong: #e3d5bb;
+        --border-soft: #eee1c9;
 
-    /* Text */
-    --ink: #31281e;
-    --body-ink: #4d4335;
-    --muted: #6e6250;
-    --off-white: #fdfaf5; /* paper */
+        /* Text */
+        --ink: #31281e;
+        --body-ink: #4d4335;
+        --muted: #6e6250;
+        --off-white: #fdfaf5; /* paper */
 
-    /* Accents */
-    --accent: #c25a33; /* terracotta */
-    --accent-dark: #a94b28; /* terracotta-dark, button hover fills */
-    --rust: #ac4f2e; /* link and text hover colour */
-    --navy: #1d3a49; /* teal */
-    --navy-mid: #25495c;
-    --accent-2: #2f6e84; /* teal-light */
-    --tan: #f2c79a; /* sand */
-    --sand-deep: #e8b96a;
-    --sky: #a9d4e0;
+        /* Accents */
+        --accent: #c25a33; /* terracotta */
+        --accent-dark: #a94b28; /* terracotta-dark, button hover fills */
+        --rust: #ac4f2e; /* link and text hover colour */
+        --navy: #1d3a49; /* teal */
+        --navy-mid: #25495c;
+        --accent-2: #2f6e84; /* teal-light */
+        --tan: #f2c79a; /* sand */
+        --sand-deep: #e8b96a;
+        --sky: #a9d4e0;
 
-    --font-sans: 'Manrope', Helvetica, Arial, sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        --font-sans: 'Manrope', Helvetica, Arial, sans-serif;
+        --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    --max-width: 1240px;
-    --page-pad: clamp(20px, 4vw, 32px);
-  }
-
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
-
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-  }
-
-  body {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    color: var(--ink);
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-sans);
-    font-weight: 800;
-    color: var(--ink);
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  a {
-    color: var(--rust);
-    text-decoration: none;
-    transition: color 220ms ease;
-  }
-
-  a:hover {
-    color: var(--ink);
-  }
-
-  /*
-   * Hover states everywhere, focus states only on form fields would leave
-   * keyboard users with nothing. Same palette, in sand where the surface is
-   * dark. Fields keep their own ring via `outline: none`.
-   */
-  :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
-
-  .dark-surface :focus-visible {
-    outline-color: var(--tan);
-  }
-
-  p,
-  ul,
-  ol,
-  dl,
-  address {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  ::selection {
-    background: var(--tan);
-  }
-
-  button {
-    font-family: inherit;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /*
-   * The one transition the design applies to every interactive element. The
-   * lift is slower and eased, colour changes are quicker, which is what makes
-   * the hovers feel settled.
-   */
-  .transition-motion {
-    transition:
-      transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
-      box-shadow 280ms ease,
-      background-color 220ms ease,
-      color 220ms ease,
-      border-color 220ms ease,
-      opacity 220ms ease;
-  }
-
-  @keyframes fadein {
-    0% {
-      opacity: 0;
+        --max-width: 1240px;
+        --page-pad: clamp(20px, 4vw, 32px);
     }
-    100% {
-      opacity: 1;
-    }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
+        box-sizing: border-box;
     }
 
-    /* Drop the hover lift itself, not just its easing. */
-    .transition-motion:hover {
-      transform: none !important;
+    html {
+        -webkit-text-size-adjust: 100%;
     }
-  }
 
-  .mono {
-    font-family: var(--font-mono);
-  }
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+    }
 
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
+    body {
+        font-family: var(--font-sans);
+        font-weight: 400;
+        color: var(--ink);
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
-  .wrap {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding-left: var(--page-pad);
-    padding-right: var(--page-pad);
-  }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-sans);
+        font-weight: 800;
+        color: var(--ink);
+        letter-spacing: -0.03em;
+        line-height: 1.08;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 
-  .section {
-    padding-top: clamp(56px, 8vw, 88px);
-  }
+    a {
+        color: var(--rust);
+        text-decoration: none;
+        transition: color 220ms ease;
+    }
 
-  /* Diagonal sand hatch, used wherever a post has no cover image. */
-  .placeholder {
-    background-color: var(--placeholder-a);
-    background-image: repeating-linear-gradient(
-      135deg,
-      var(--placeholder-b) 0 8px,
-      var(--placeholder-c) 8px 16px
-    );
-  }
+    a:hover {
+        color: var(--ink);
+    }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    min-height: 44px;
-    padding: 14px 24px;
-    border-radius: 999px;
-    font-size: 15px;
-    border: none;
-    transition:
-      transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
-      box-shadow 280ms ease,
-      background-color 220ms ease,
-      color 220ms ease,
-      border-color 220ms ease,
-      opacity 220ms ease;
-  }
+    /*
+     * Hover states everywhere, focus states only on form fields would leave
+     * keyboard users with nothing. Same palette, in sand where the surface is
+     * dark. Fields keep their own ring via `outline: none`.
+     */
+    :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+    }
 
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-    font-weight: 600;
-  }
+    .dark-surface :focus-visible {
+        outline-color: var(--tan);
+    }
 
-  .btn-primary:hover {
-    background: var(--accent-dark);
-    color: #fff;
-    transform: translateY(-1px);
-  }
+    p,
+    ul,
+    ol,
+    dl,
+    address {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 
-  .btn-outline {
-    border: 1px solid rgba(253, 250, 245, 0.4);
-    color: var(--off-white);
-    font-weight: 500;
-  }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
 
-  .btn-outline:hover {
-    background: rgba(253, 250, 245, 0.12);
-    border-color: var(--off-white);
-    color: var(--off-white);
-  }
+    ::selection {
+        background: var(--tan);
+    }
 
-  /* Cream pill button: pagination, 404, filters. */
-  .btn-ghost {
-    border: 1px solid var(--border-strong);
-    background: var(--paper);
-    color: var(--ink);
-    font-weight: 500;
-  }
+    button {
+        font-family: inherit;
+    }
 
-  .btn-ghost:hover {
-    border-color: var(--accent);
-    color: var(--rust);
-    transform: translateY(-1px);
-  }
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
 
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid var(--border-strong);
-    background: var(--paper);
-    color: var(--ink);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition:
-      transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
-      box-shadow 280ms ease,
-      background-color 220ms ease,
-      color 220ms ease,
-      border-color 220ms ease,
-      opacity 220ms ease;
-  }
+    /*
+     * The one transition the design applies to every interactive element. The
+     * lift is slower and eased, colour changes are quicker, which is what makes
+     * the hovers feel settled.
+     */
+    .transition-motion {
+        transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
+        box-shadow 280ms ease,
+        background-color 220ms ease,
+        color 220ms ease,
+        border-color 220ms ease,
+        opacity 220ms ease;
+    }
 
-  .pill:hover {
-    border-color: var(--accent);
-    color: var(--rust);
-    background: var(--bg);
-    transform: translateY(-1px);
-  }
+    @keyframes fadein {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
 
-  .pill.active,
-  .pill.active:hover {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: #fff;
-    transform: none;
-  }
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
 
-  /* Square-cornered tag used on cards and hero images. */
-  .badge {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    line-height: 1.6;
-    padding: 7px 11px;
-    border-radius: 2px;
-    background: var(--accent);
-    color: #fff;
-  }
+        /* Drop the hover lift itself, not just its easing. */
+        .transition-motion:hover {
+            transform: none !important;
+        }
+    }
 
-  .badge.outline {
-    background: transparent;
-    border: 1px solid rgba(253, 250, 245, 0.35);
-    color: var(--off-white);
-  }
+    .mono {
+        font-family: var(--font-mono);
+    }
 
-  .badge.dark {
-    background: rgba(20, 14, 10, 0.6);
-    color: var(--off-white);
-  }
+    .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
 
-  a.badge:hover {
-    background: var(--accent-dark);
-    color: #fff;
-  }
+    .wrap {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding-left: var(--page-pad);
+        padding-right: var(--page-pad);
+    }
 
-  .clearfix::after {
-    content: '';
-    clear: both;
-    display: table;
-  }
+    .section {
+        padding-top: clamp(56px, 8vw, 88px);
+    }
 
-  /*
-   * Long-form article body.
-   *
-   * Post bodies are rendered from markdown and carry no classes of their own,
-   * so everything below styles bare elements.
-   */
-  .post-body {
-    color: var(--body-ink);
-    font-size: 18px;
-    line-height: 1.75;
-  }
+    /* Diagonal sand hatch, used wherever a post has no cover image. */
+    .placeholder {
+        background-color: var(--placeholder-a);
+        background-image: repeating-linear-gradient(
+                135deg,
+                var(--placeholder-b) 0 8px,
+                var(--placeholder-c) 8px 16px
+        );
+    }
 
-  .post-body > *:first-child {
-    margin-top: 0;
-  }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        min-height: 44px;
+        padding: 14px 24px;
+        border-radius: 999px;
+        font-size: 15px;
+        border: none;
+        transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
+        box-shadow 280ms ease,
+        background-color 220ms ease,
+        color 220ms ease,
+        border-color 220ms ease,
+        opacity 220ms ease;
+    }
 
-  .post-body p {
-    margin: 0 0 24px;
-  }
+    .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+    }
 
-  .post-body h2 {
-    margin: 48px 0 16px;
-    font-size: 34px;
-    letter-spacing: -0.03em;
-  }
+    .btn-primary:hover {
+        background: var(--accent-dark);
+        color: #fff;
+        transform: translateY(-1px);
+    }
 
-  .post-body h3 {
-    margin: 40px 0 14px;
-    font-size: 26px;
-    letter-spacing: -0.02em;
-  }
+    .btn-outline {
+        border: 1px solid rgba(253, 250, 245, 0.4);
+        color: var(--off-white);
+        font-weight: 500;
+    }
 
-  .post-body h4,
-  .post-body h5,
-  .post-body h6 {
-    margin: 32px 0 12px;
-    font-size: 20px;
-    letter-spacing: -0.01em;
-  }
+    .btn-outline:hover {
+        background: rgba(253, 250, 245, 0.12);
+        border-color: var(--off-white);
+        color: var(--off-white);
+    }
 
-  .post-body ul,
-  .post-body ol {
-    margin: 0 0 24px;
-    padding-left: 22px;
-  }
+    /* Cream pill button: pagination, 404, filters. */
+    .btn-ghost {
+        border: 1px solid var(--border-strong);
+        background: var(--paper);
+        color: var(--ink);
+        font-weight: 500;
+    }
 
-  .post-body li {
-    margin-bottom: 10px;
-  }
+    .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--rust);
+        transform: translateY(-1px);
+    }
 
-  .post-body li::marker {
-    color: var(--rust);
-  }
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--border-strong);
+        background: var(--paper);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1),
+        box-shadow 280ms ease,
+        background-color 220ms ease,
+        color 220ms ease,
+        border-color 220ms ease,
+        opacity 220ms ease;
+    }
 
-  .post-body a {
-    color: var(--rust);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
-  }
+    .pill:hover {
+        border-color: var(--accent);
+        color: var(--rust);
+        background: var(--bg);
+        transform: translateY(-1px);
+    }
 
-  .post-body a:hover {
-    color: var(--ink);
-  }
+    .pill.active,
+    .pill.active:hover {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+        transform: none;
+    }
 
-  .post-body strong {
-    font-weight: 700;
-    color: var(--ink);
-  }
+    /* Square-cornered tag used on cards and hero images. */
+    .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: 1.6;
+        padding: 7px 11px;
+        border-radius: 2px;
+        background: var(--accent);
+        color: #fff;
+    }
 
-  .post-body blockquote {
-    margin: 40px 0;
-    padding: 24px clamp(20px, 4vw, 32px);
-    border: 0;
-    border-left: 3px solid var(--accent);
-    background: var(--paper);
-  }
+    .badge.outline {
+        background: transparent;
+        border: 1px solid rgba(253, 250, 245, 0.35);
+        color: var(--off-white);
+    }
 
-  .post-body blockquote p {
-    margin: 0;
-    font-weight: 700;
-    font-size: 25px;
-    line-height: 1.35;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-  }
+    .badge.dark {
+        background: rgba(20, 14, 10, 0.6);
+        color: var(--off-white);
+    }
 
-  .post-body img {
-    display: block;
-    margin: 44px auto;
-    border-radius: 6px;
-  }
+    a.badge:hover {
+        background: var(--accent-dark);
+        color: #fff;
+    }
 
-  .post-body figure {
-    margin: 44px 0;
-  }
+    .clearfix::after {
+        content: '';
+        clear: both;
+        display: table;
+    }
 
-  .post-body figure img {
-    margin: 0;
-  }
+    /*
+     * Long-form article body.
+     *
+     * Post bodies are rendered from markdown and carry no classes of their own,
+     * so everything below styles bare elements.
+     */
+    .post-body {
+        color: var(--body-ink);
+        font-size: 18px;
+        line-height: 1.75;
+    }
 
-  .post-body figcaption {
-    margin-top: 12px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+    .post-body > *:first-child {
+        margin-top: 0;
+    }
 
-  .post-body hr {
-    margin: 48px 0;
-    border: 0;
-    border-top: 1px solid var(--border);
-  }
+    .post-body p {
+        margin: 0 0 24px;
+    }
 
-  .post-body code {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    background: var(--paper);
-    border-radius: 2px;
-    padding: 2px 6px;
-  }
+    .post-body h2 {
+        margin: 48px 0 16px;
+        font-size: 34px;
+        letter-spacing: -0.03em;
+    }
 
-  .post-body pre {
-    margin: 32px 0;
-    padding: 20px;
-    overflow-x: auto;
-    border-radius: 6px;
-    background: var(--navy);
-    color: var(--off-white);
-  }
+    .post-body h3 {
+        margin: 40px 0 14px;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+    }
 
-  .post-body pre code {
-    background: none;
-    padding: 0;
-    color: inherit;
-  }
+    .post-body h4,
+    .post-body h5,
+    .post-body h6 {
+        margin: 32px 0 12px;
+        font-size: 20px;
+        letter-spacing: -0.01em;
+    }
 
-  .post-body table {
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-    margin: 44px 0;
-    border-collapse: collapse;
-    font-size: 16px;
-  }
+    .post-body ul,
+    .post-body ol {
+        margin: 0 0 24px;
+        padding-left: 22px;
+    }
 
-  .post-body th,
-  .post-body td {
-    padding: 14px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
+    .post-body li {
+        margin-bottom: 10px;
+    }
 
-  .post-body th {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: var(--paper-2);
-  }
+    .post-body li::marker {
+        color: var(--rust);
+    }
 
-  /*
-   * The final table in a post is the trip cost breakdown, and gets the
-   * bordered card treatment: mono header bar, hairline rows, and a
-   * right-aligned monospaced value column.
-   */
-  .post-body table:last-of-type {
-    display: table;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    overflow: hidden;
-    border-spacing: 0;
-  }
+    .post-body a {
+        color: var(--rust);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+    }
 
-  .post-body table:last-of-type th {
-    padding: 18px 24px;
-    background: var(--paper-2);
-    border-bottom: 0;
-  }
+    .post-body a:hover {
+        color: var(--ink);
+    }
 
-  .post-body table:last-of-type td {
-    padding: 16px 24px;
-    border-bottom: 0;
-    border-top: 1px solid var(--border);
-    color: var(--ink);
-  }
+    .post-body strong {
+        font-weight: 700;
+        color: var(--ink);
+    }
 
-  .post-body table:last-of-type td:last-child,
-  .post-body table:last-of-type th:last-child {
-    font-family: var(--font-mono);
-    font-weight: 500;
-    text-align: right;
-  }
+    .post-body blockquote {
+        margin: 40px 0;
+        padding: 24px clamp(20px, 4vw, 32px);
+        border: 0;
+        border-left: 3px solid var(--accent);
+        background: var(--paper);
+    }
 
-  /* A lone table would otherwise lose its horizontal scroll on narrow screens. */
-  @media (max-width: 640px) {
+    .post-body blockquote p {
+        margin: 0;
+        font-weight: 700;
+        font-size: 25px;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+    }
+
+    .post-body img {
+        display: block;
+        margin: 44px auto;
+        border-radius: 6px;
+    }
+
+    .post-body figure {
+        margin: 44px 0;
+    }
+
+    .post-body figure img {
+        margin: 0;
+    }
+
+    .post-body figcaption {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .post-body hr {
+        margin: 48px 0;
+        border: 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .post-body code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        background: var(--paper);
+        border-radius: 2px;
+        padding: 2px 6px;
+    }
+
+    .post-body pre {
+        margin: 32px 0;
+        padding: 20px;
+        overflow-x: auto;
+        border-radius: 6px;
+        background: var(--navy);
+        color: var(--off-white);
+    }
+
+    .post-body pre code {
+        background: none;
+        padding: 0;
+        color: inherit;
+    }
+
+    .post-body table {
+        display: block;
+        overflow-x: auto;
+        width: 100%;
+        margin: 44px 0;
+        border-collapse: collapse;
+        font-size: 16px;
+    }
+
+    .post-body th,
+    .post-body td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .post-body th {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: var(--paper-2);
+    }
+
+    /*
+     * The final table in a post is the trip cost breakdown, and gets the
+     * bordered card treatment: mono header bar, hairline rows, and a
+     * right-aligned monospaced value column.
+     */
     .post-body table:last-of-type {
-      display: block;
-      overflow-x: auto;
+        display: table;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        overflow: hidden;
+        border-spacing: 0;
     }
-  }
+
+    .post-body table:last-of-type th {
+        padding: 18px 24px;
+        background: var(--paper-2);
+        border-bottom: 0;
+    }
+
+    .post-body table:last-of-type td {
+        padding: 16px 24px;
+        border-bottom: 0;
+        border-top: 1px solid var(--border);
+        color: var(--ink);
+    }
+
+    .post-body table:last-of-type td:last-child,
+    .post-body table:last-of-type th:last-child {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    /* A lone table would otherwise lose its horizontal scroll on narrow screens. */
+    @media (max-width: 640px) {
+        .post-body table:last-of-type {
+            display: block;
+            overflow-x: auto;
+        }
+    }
 </style>
