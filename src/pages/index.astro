@@ -26,7 +26,7 @@ const [essentials, places, everythingSpain] = navTopics;
 
 const allPosts = await getHomePosts();
 const numPages = pageCount(allPosts.length);
-const [featured, ...rest] = paginate(allPosts, 1);
+const [featured, ...rest] = allPosts.slice(0, 4);
 
 const guides = essentials ? (await getPostsByTopicTitle(essentials.data.title)).slice(0, 5) : [];
 

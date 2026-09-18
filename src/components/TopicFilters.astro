@@ -10,7 +10,6 @@ const { activeTopic } = Astro.props;
 const topics = await getSiteTopics();
 ---
 <div class="filters">
-  <a href="/" class:list={['pill', { active: !activeTopic }]}>All</a>
   {topics.map((topic) => (
     <a href={topicPath(topic)} class:list={['pill', { active: activeTopic === topic.data.slug }]}>
       {topic.data.title}

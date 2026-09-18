@@ -12,7 +12,6 @@ const latestPath = posts[0] ? postPath(posts[0]) : '/';
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
   ...navTopics
-    .filter((topic) => topic.data.slug !== 'everything-spain')
     .map((topic) => ({ label: topic.data.title, href: topicPath(topic) })),
   { label: 'About', href: '/about/' },
 ];

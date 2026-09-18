@@ -39,7 +39,7 @@ export async function getSiteTopics() {
 }
 
 export async function getNavTopics() {
-  const order = ['essentials', 'places', 'everything-spain'];
+  const order = ['essentials', 'everything-spain', 'places'];
   const all = await getSiteTopics();
   return order
     .map((slug) => all.find((t) => t.data.slug === slug))
