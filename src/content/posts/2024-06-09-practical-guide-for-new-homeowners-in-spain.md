@@ -6,7 +6,7 @@ updated: "2024-06-19"
 teaser: "Essential tasks for new homeowners in Spain - setting up utilities, choosing internet providers, and getting home insurance."
 seoDescription: "Moving to Spain and need to set up utilities and home insurance? Learn how to get electricity, water, and internet sorted out for your new home in Spain. Don't forget to prioritize home insurance - all part of the adventure of making your house a home. Hasta luego mis amigos!"
 topics: ["Everything Spain","Essentials"]
-image: "YSw0SO_pIo"
+image: "Bve8Cg94RR0"
 ---
 
 If you're the proud new owner of a house in Spain, there's quite a bit on your to-do list. First off, sorting out electricity, water, sewage, internet, and home insurance is key. 
